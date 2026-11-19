@@ -97,7 +97,7 @@ jobs:
             rm -f app/release-keystore.jks
           fi
 
-            - name: Collect APK outputs & print SHA fingerprints
+      - name: Collect APK outputs & print SHA fingerprints
         run: |
           mkdir -p apk-output
           DEBUG_APK="android/app/build/outputs/apk/debug/app-debug.apk"
@@ -109,8 +109,6 @@ jobs:
             keytool -list -v -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey -storepass android -keypass android | grep -E "SHA1:|SHA256:" || true
           fi
           ls -lh apk-output/
-
-        
 
       - name: Upload downloadable Android APK artifacts
         uses: actions/upload-artifact@v4
