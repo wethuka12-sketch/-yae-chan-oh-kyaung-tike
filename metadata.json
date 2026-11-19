@@ -1,0 +1,8 @@
+{
+  "name": "ရေချမ်းအိုးကျောင်းတိုက် — Yae Chan Oh Kyaung Tike",
+  "description": "Serene Myanmar Buddhist Dhamma & Community sanctuary featuring monastery announcements, audio Dhamma talks, video teachings, and a digital Dhamma library.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

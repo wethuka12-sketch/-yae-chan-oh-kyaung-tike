@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-myanmar: "Pyidaungsu", "Noto Sans Myanmar", sans-serif;
+    --font-display: "Cormorant Garamond", "Pyidaungsu", "Noto Sans Myanmar", serif;
+    --color-teak: #3D140F;
+    --color-gold: #D4AF37;
+    --color-ivory: #FAF6EE;
+    --color-dark-card: #1E1E1E;
+  }
+
+  html {
+    font-family: var(--font-myanmar);
+    line-height: 1.7;
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: var(--font-myanmar);
+    line-height: 1.7;
+    background-color: #FAF6EE;
+    color: #2A1815;
+    overflow-x: hidden;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-myanmar {
+  font-family: var(--font-myanmar);
+  line-height: 1.7;
+}
+
+.smooth-scroll-container {
+  -webkit-overflow-scrolling: touch;
+  will-change: transform;
+  overscroll-behavior-y: contain;
+}
+
+.gpu-accelerated {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pt-safe-mobile {
+  padding-top: max(env(safe-area-inset-top, 24px), 24px);
+}
+
+@media (min-width: 1024px) {
+  .pt-safe-mobile {
+    padding-top: 0px;
+  }
+}
+
+/* Custom Range Seekbar Styling */
+input[type="range"].dhamma-seekbar {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"].dhamma-seekbar::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+}
+
+input[type="range"].dhamma-seekbar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 9999px;
+  background: #D4AF37;
+  border: 2px solid #FAF6EE;
+  margin-top: -5px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+input[type="range"].dhamma-seekbar:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

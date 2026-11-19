@@ -1,0 +1,335 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 200 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedEmail() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isEmailAdmin() {
+      return isVerifiedEmail() && request.auth.token.email == 'ashinzargara08@gmail.com';
+    }
+
+    function isAdmin() {
+      return isEmailAdmin() || (isVerifiedEmail() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'displayName', 'email', 'photoURL', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'email', 'photoURL', 'createdAt', 'updatedAt'])
+        && data.uid is string && data.uid == userId && data.uid == request.auth.uid && isValidId(data.uid)
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 100
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+        && data.photoURL is string && data.photoURL.size() <= 500
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidReaction(data) {
+      return data.keys().hasAll(['postId', 'userId', 'reactionType', 'isPublic', 'createdAt'])
+        && data.keys().hasOnly(['postId', 'userId', 'reactionType', 'isPublic', 'createdAt'])
+        && data.postId is string && data.postId.size() >= 1 && data.postId.size() <= 64 && data.postId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 && isValidId(data.userId)
+        && data.reactionType is string && data.reactionType in ['good', 'love']
+        && data.isPublic is bool && data.isPublic == true
+        && data.createdAt is timestamp;
+    }
+
+    function isValidComment(data) {
+      return data.keys().hasAll(['postId', 'authorId', 'authorName', 'authorPhoto', 'text', 'isPublic', 'createdAt'])
+        && data.keys().hasOnly(['postId', 'authorId', 'authorName', 'authorPhoto', 'text', 'isPublic', 'createdAt'])
+        && data.postId is string && data.postId.size() >= 1 && data.postId.size() <= 64 && data.postId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.authorId is string && data.authorId == request.auth.uid && data.authorId.size() <= 128 && isValidId(data.authorId)
+        && data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 100
+        && data.authorPhoto is string && data.authorPhoto.size() <= 500
+        && data.text is string && data.text.size() >= 1 && data.text.size() <= 1000
+        && data.isPublic is bool && data.isPublic == true
+        && data.createdAt is timestamp;
+    }
+
+    function isValidPost(data) {
+      return data.keys().hasAll([
+          'category', 'dateMyanmar', 'author', 'title', 'summary', 'body',
+          'image', 'imageAlt', 'initialGood', 'initialLove',
+          'isPublic', 'isArchived', 'createdBy', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'category', 'dateMyanmar', 'author', 'title', 'summary', 'body',
+          'image', 'imageAlt', 'audioUrl', 'videoUrl', 'initialGood', 'initialLove',
+          'isPublic', 'isArchived', 'createdBy', 'createdAt', 'updatedAt'
+        ])
+        && data.category is string && data.category.size() >= 1 && data.category.size() <= 80
+        && data.dateMyanmar is string && data.dateMyanmar.size() >= 1 && data.dateMyanmar.size() <= 80
+        && data.author is string && data.author.size() >= 1 && data.author.size() <= 100
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 200
+        && data.summary is string && data.summary.size() >= 1 && data.summary.size() <= 500
+        && data.body is string && data.body.size() >= 1 && data.body.size() <= 5000
+        && data.image is string && data.image.size() <= 1000
+        && data.imageAlt is string && data.imageAlt.size() <= 200
+        && (!('audioUrl' in data) || (data.audioUrl is string && data.audioUrl.size() <= 1000))
+        && (!('videoUrl' in data) || (data.videoUrl is string && data.videoUrl.size() <= 1000))
+        && data.initialGood is number && data.initialGood >= 0
+        && data.initialLove is number && data.initialLove >= 0
+        && data.isPublic is bool && data.isPublic == true
+        && data.isArchived is bool
+        && data.createdBy is string && data.createdBy.size() <= 128 && isValidId(data.createdBy)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidAudioTalk(data) {
+      return data.keys().hasAll([
+          'title', 'speaker', 'category', 'durationSec', 'dateLabel', 'description',
+          'coverImage', 'audioUrl', 'isPublic', 'isArchived', 'createdBy', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'speaker', 'category', 'durationSec', 'dateLabel', 'description',
+          'coverImage', 'audioUrl', 'isPublic', 'isArchived', 'createdBy', 'createdAt', 'updatedAt'
+        ])
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 200
+        && data.speaker is string && data.speaker.size() >= 1 && data.speaker.size() <= 120
+        && data.category is string && data.category in ['ဒေါက်တာဘဒ္ဒန္တဉာဏိကတရားတော်များ', 'ပရိတ်တော်', 'သုတ္တန်']
+        && data.durationSec is number && data.durationSec >= 1 && data.durationSec <= 36000
+        && data.dateLabel is string && data.dateLabel.size() >= 1 && data.dateLabel.size() <= 100
+        && data.description is string && data.description.size() >= 1 && data.description.size() <= 1000
+        && data.coverImage is string && data.coverImage.size() <= 1000
+        && data.audioUrl is string && data.audioUrl.size() <= 1000
+        && data.isPublic is bool && data.isPublic == true
+        && data.isArchived is bool
+        && data.createdBy is string && data.createdBy.size() <= 128 && isValidId(data.createdBy)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidVideo(data) {
+      return data.keys().hasAll([
+          'title', 'speaker', 'category', 'durationSec', 'dateLabel', 'description',
+          'thumbnail', 'videoUrl', 'isPublic', 'isArchived', 'createdBy', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'speaker', 'category', 'durationSec', 'dateLabel', 'description',
+          'thumbnail', 'videoUrl', 'isPublic', 'isArchived', 'createdBy', 'createdAt', 'updatedAt'
+        ])
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 200
+        && data.speaker is string && data.speaker.size() >= 1 && data.speaker.size() <= 120
+        && data.category is string && data.category.size() >= 1 && data.category.size() <= 100
+        && data.durationSec is number && data.durationSec >= 1 && data.durationSec <= 36000
+        && data.dateLabel is string && data.dateLabel.size() >= 1 && data.dateLabel.size() <= 100
+        && data.description is string && data.description.size() >= 1 && data.description.size() <= 1000
+        && data.thumbnail is string && data.thumbnail.size() <= 1000
+        && data.videoUrl is string && data.videoUrl.size() <= 1000
+        && data.isPublic is bool && data.isPublic == true
+        && data.isArchived is bool
+        && data.createdBy is string && data.createdBy.size() <= 128 && isValidId(data.createdBy)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidBook(data) {
+      return data.keys().hasAll([
+          'title', 'author', 'category', 'pagesLabel', 'coverImage', 'synopsis',
+          'content', 'pdfUrl', 'isPublic', 'isArchived', 'createdBy', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'author', 'category', 'pagesLabel', 'coverImage', 'synopsis',
+          'content', 'pdfUrl', 'isPublic', 'isArchived', 'createdBy', 'createdAt', 'updatedAt'
+        ])
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 200
+        && data.author is string && data.author.size() >= 1 && data.author.size() <= 120
+        && data.category is string && data.category.size() >= 1 && data.category.size() <= 100
+        && data.pagesLabel is string && data.pagesLabel.size() >= 1 && data.pagesLabel.size() <= 100
+        && data.coverImage is string && data.coverImage.size() <= 1000
+        && data.synopsis is string && data.synopsis.size() >= 1 && data.synopsis.size() <= 1000
+        && data.content is string && data.content.size() >= 1 && data.content.size() <= 50000
+        && data.pdfUrl is string && data.pdfUrl.size() <= 1000
+        && data.isPublic is bool && data.isPublic == true
+        && data.isArchived is bool
+        && data.createdBy is string && data.createdBy.size() <= 128 && isValidId(data.createdBy)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /test/connection {
+      allow get: if true;
+    }
+
+    match /admins/{adminId} {
+      allow get: if isValidId(adminId) && (isOwner(adminId) || isEmailAdmin());
+      allow list: if false;
+      allow create, update, delete: if isValidId(adminId) && isEmailAdmin();
+    }
+
+    match /userProfiles/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if false;
+      allow create: if isValidId(userId)
+        && isVerifiedEmail()
+        && isOwner(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId)
+        && isVerifiedEmail()
+        && isOwner(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().updatedAt == request.time
+        && (
+          (
+            ('createdAt' in existing()) && ('uid' in existing())
+            && incoming().uid == existing().uid
+            && incoming().createdAt == existing().createdAt
+            && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'email', 'photoURL', 'updatedAt'])
+          ) || (
+            !('createdAt' in existing())
+            && incoming().createdAt == request.time
+            && incoming().diff(existing()).affectedKeys().hasOnly(['uid', 'displayName', 'email', 'photoURL', 'createdAt', 'updatedAt'])
+          ) || (
+            ('createdAt' in existing()) && !('uid' in existing())
+            && incoming().createdAt == existing().createdAt
+            && incoming().diff(existing()).affectedKeys().hasOnly(['uid', 'displayName', 'email', 'photoURL', 'updatedAt'])
+          )
+        );
+      allow delete: if isValidId(userId) && isVerifiedEmail() && (isOwner(userId) || isAdmin());
+    }
+
+    match /reactions/{reactionId} {
+      allow get: if isValidId(reactionId) && existing().isPublic == true;
+      allow list: if existing().isPublic == true;
+      allow create: if isValidId(reactionId)
+        && isVerifiedEmail()
+        && isValidReaction(incoming())
+        && reactionId == incoming().postId + '_' + incoming().reactionType + '_' + request.auth.uid
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isValidId(reactionId)
+        && isVerifiedEmail()
+        && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    match /comments/{commentId} {
+      allow get: if isValidId(commentId) && existing().isPublic == true;
+      allow list: if existing().isPublic == true;
+      allow create: if isValidId(commentId)
+        && isVerifiedEmail()
+        && isValidComment(incoming())
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isValidId(commentId)
+        && isVerifiedEmail()
+        && (existing().authorId == request.auth.uid || isAdmin());
+    }
+
+    match /posts/{postId} {
+      allow get: if isValidId(postId) && (existing().isPublic == true || isAdmin());
+      allow list: if existing().isPublic == true || isEmailAdmin();
+      allow create: if isValidId(postId)
+        && isValidPost(incoming())
+        && isAdmin()
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(postId)
+        && isValidPost(incoming())
+        && isAdmin()
+        && incoming().createdBy == existing().createdBy
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'category', 'dateMyanmar', 'author', 'title', 'summary', 'body',
+          'image', 'imageAlt', 'audioUrl', 'videoUrl', 'initialGood', 'initialLove',
+          'isPublic', 'isArchived', 'updatedAt'
+        ]);
+      allow delete: if isValidId(postId) && isAdmin();
+    }
+
+    match /audioTalks/{talkId} {
+      allow get: if isValidId(talkId) && (existing().isPublic == true || isAdmin());
+      allow list: if existing().isPublic == true || isEmailAdmin();
+      allow create: if isValidId(talkId)
+        && isValidAudioTalk(incoming())
+        && isAdmin()
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(talkId)
+        && isValidAudioTalk(incoming())
+        && isAdmin()
+        && incoming().createdBy == existing().createdBy
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'speaker', 'category', 'durationSec', 'dateLabel', 'description',
+          'coverImage', 'audioUrl', 'isPublic', 'isArchived', 'updatedAt'
+        ]);
+      allow delete: if isValidId(talkId) && isAdmin();
+    }
+
+    match /videos/{videoId} {
+      allow get: if isValidId(videoId) && (existing().isPublic == true || isAdmin());
+      allow list: if existing().isPublic == true || isEmailAdmin();
+      allow create: if isValidId(videoId)
+        && isValidVideo(incoming())
+        && isAdmin()
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(videoId)
+        && isValidVideo(incoming())
+        && isAdmin()
+        && incoming().createdBy == existing().createdBy
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'speaker', 'category', 'durationSec', 'dateLabel', 'description',
+          'thumbnail', 'videoUrl', 'isPublic', 'isArchived', 'updatedAt'
+        ]);
+      allow delete: if isValidId(videoId) && isAdmin();
+    }
+
+    match /books/{bookId} {
+      allow get: if isValidId(bookId) && (existing().isPublic == true || isAdmin());
+      allow list: if existing().isPublic == true || isEmailAdmin();
+      allow create: if isValidId(bookId)
+        && isValidBook(incoming())
+        && isAdmin()
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(bookId)
+        && isValidBook(incoming())
+        && isAdmin()
+        && incoming().createdBy == existing().createdBy
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'author', 'category', 'pagesLabel', 'coverImage', 'synopsis',
+          'content', 'pdfUrl', 'isPublic', 'isArchived', 'updatedAt'
+        ]);
+      allow delete: if isValidId(bookId) && isAdmin();
+    }
+  }
+}

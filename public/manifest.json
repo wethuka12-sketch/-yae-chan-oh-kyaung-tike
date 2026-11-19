@@ -1,0 +1,35 @@
+{
+  "id": "/",
+  "name": "ရေချမ်းအိုးကျောင်းတိုက်",
+  "short_name": "ရေချမ်းအိုး",
+  "description": "ရေချမ်းအိုးကျောင်းတိုက် ဓမ္မနှင့် လူမှုအသိုင်းအဝိုင်း — တရားတော်များ၊ ဗီဒီယိုများနှင့် ဓမ္မစာအုပ်များ",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#3D140F",
+  "background_color": "#FDFBF7",
+  "lang": "my",
+  "dir": "ltr",
+  "categories": ["lifestyle", "education", "books"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
