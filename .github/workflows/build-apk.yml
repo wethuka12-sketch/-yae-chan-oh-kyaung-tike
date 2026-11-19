@@ -103,14 +103,10 @@ jobs:
           DEBUG_APK="android/app/build/outputs/apk/debug/app-debug.apk"
           if [ -f "$DEBUG_APK" ]; then
             cp "$DEBUG_APK" apk-output/yae-chan-oh-kyaung-tike-debug.apk
-            echo "=== Debug APK Certificate Fingerprints (for Google Sign-In SHA-1) ==="
-            keytool -printcert -jarfile apk-output/yae-chan-oh-kyaung-tike-debug.apk || true
           fi
-          RELEASE_APK="android/app/build/outputs/apk/release/app-release.apk"
-          if [ -f "$RELEASE_APK" ]; then
-            cp "$RELEASE_APK" apk-output/yae-chan-oh-kyaung-tike-release.apk
-            echo "=== Release APK Certificate Fingerprints (for Google Sign-In SHA-1) ==="
-            keytool -printcert -jarfile apk-output/yae-chan-oh-kyaung-tike-release.apk || true
+          if [ -f "$HOME/.android/debug.keystore" ]; then
+            echo "=== Debug Keystore Fingerprints (for Google Sign-In SHA-1) ==="
+            keytool -list -v -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey -storepass android -keypass android | grep -E "SHA1:|SHA256:" || true
           fi
           ls -lh apk-output/
 
