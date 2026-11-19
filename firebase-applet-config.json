@@ -1,12 +1,12 @@
+
 {
-  "projectId": "gen-lang-client-0861123696",
-  "appId": "1:472594870805:web:f4a5f8873cbcf0170a141c",
-  "apiKey": "AIzaSyD1jsNiph9ICuuDOmtDBjAF63HqwiCJQjc",
-  "authDomain": "gen-lang-client-0861123696.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-9e87e2a8-29be-4118-bb58-63beadd8c867",
-  "storageBucket": "gen-lang-client-0861123696.firebasestorage.app",
-  "messagingSenderId": "472594870805",
-  "measurementId": "",
-  "oAuthClientId": "472594870805-vgoiv2k8f6lpq8p4hh2fue5fl8d86348.apps.googleusercontent.com",
-  "recaptchaSiteKey": ""
+  "projectId": "yae-chan-oh-kyaung-tike",
+  "appId": "1:196648566058:web:42abbf162214fed56a7253",
+  "apiKey": "AIzaSyCOT-R42wkU1u_cSCeF9l_by_Gp26RvQfE",
+  "authDomain": "yae-chan-oh-kyaung-tike.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "yae-chan-oh-kyaung-tike.firebasestorage.app",
+  "messagingSenderId": "196648566058",
+  "measurementId": "G-F2FV225KHE",
+  "oAuthClientId": "196648566058-o9a40b3jdh7lc6h87mepla1qda2aq2mc.apps.googleusercontent.com"
 }
